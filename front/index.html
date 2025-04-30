@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Automata Visualizer</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --gray-light: #e2e8f0;
+            --gray: #94a3b8;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0 1rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 1rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1.5rem;
+        }
+        
+        .description {
+            font-size: 1.125rem;
+            color: var(--text);
+            max-width: 650px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .form {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        .button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+            }
+            
+            .form {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Regex Automata Visualizer</h1>
+            <p class="description">
+                This tool helps you understand how lexical analysis and automata theory work by visualizing the path taken by a string through a finite automaton (DFA) constructed from a regular expression.
+            </p>
+        </div>
+        
+        <div class="form">
+            <div class="input-group">
+                <label class="label" for="expr">Regular Expression</label>
+                <input class="input" type="text" id="expr" placeholder="Enter a regular expression (e.g., a(b|c)*)" />
+            </div>
+            
+            <div class="input-group">
+                <label class="label" for="string">Test String</label>
+                <input class="input" type="text" id="string" placeholder="Enter a string to test (e.g., abbc)" />
+            </div>
+            
+            <div class="input-group">
+                <button class="button" id="visualizeBtn">Visualize</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Your JavaScript for visualization functionality would go here
+        document.getElementById('visualizeBtn').addEventListener('click', function() {
+            // Example placeholder for visualization functionality
+            const regex = document.getElementById('expr').value;
+            const testString = document.getElementById('string').value;
+            
+            if (regex && testString) {
+                console.log(`Visualizing regex "${regex}" with test string "${testString}"`);
+                // Actual visualization logic would be implemented here
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+@font-face {
+    font-family: mojFont;
+    src: url(resources/RobotoMono-Medium.ttf);
+}
+
+h1{
+    color: rgb(64, 113, 205);
+    font-family: mojFont;
+    text-align: center;
+    font-size: 60px;
+}
+
+#opis{
+    color: rgb(201, 30, 118);
+    text-align: center;
+    font-family: mojFont;
+    font-size: 20px;
+    font-weight: lighter;
+}
