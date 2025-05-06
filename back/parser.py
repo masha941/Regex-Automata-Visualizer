@@ -11,10 +11,7 @@ def add_concat_operator(regex):
     prev = ""
     for curr in regex:
         if prev:
-            if(
-                (prev.isalnum() or prev in ")*+?") and
-                (curr.isalnum() or curr == "(")
-            ):
+            if((prev.isalnum() or prev in ")*+?") and (curr.isalnum() or curr == "(")):
                 result += "."
         result += curr
         prev = curr
