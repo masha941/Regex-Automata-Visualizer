@@ -4,8 +4,25 @@ class nfa:
     def __init__(self, initial, accept):
         self.initial, self.accept = initial, accept
 
+    def get_states(self):
+        visited = set()
+        stack = [self.initial]
+        while stack:
+            state = stack.pop()
+            if state not in visited:
+                visited.add(state)
+                if state.edge1:
+                    stack.append(state.edge1)
+                if state.edge2:
+                    stack.append(state.edge2)
+        return visited
+
 class state:
-    label,edge1,edge2 = None,None,None
+    def __init__(self, label=None):
+        self.label = label
+        self.edge1 = None
+        self.edge2 = None
+        self.id = id(self)
 
 def compile(regex):
 
@@ -38,7 +55,7 @@ def compile(regex):
         elif c == '?':
             nfa1 = nfaStack.pop()
             initial, accept = state(), state()
-            initial.edge1 = nfa1.nitial
+            initial.edge1 = nfa1.initial
             initial.edge2 = accept
             nfa1.accept.edge1 = accept
             nfaStack.append(nfa(initial,accept))
@@ -54,10 +71,11 @@ def compile(regex):
             nfaStack.append(nfa(initial, accept))
 
         else:
-            accept, initial = state(), state()
-            initial.label, initial.edge1 = c, accept
-            nfaStack.append(nfa(initial, accept))
+            accept = state()
+            initial = state(label=c)
+            initial.edge1 = accept
+            nfaStack.append(nfa(initial,accept))
 
     return nfaStack.pop()
 
-        
+

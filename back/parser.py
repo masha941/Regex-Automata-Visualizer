@@ -59,11 +59,3 @@ def parse_to_rpn(regex):
         output.append(operators.pop())
 
     return ''.join(output)
-#example
-
-def main():
-    expression = '(a|b)*c(d|e)*'
-    print('Shunting Yard Algorithm Result:', parse_to_rpn(expression))
-
-if __name__ == '__main__':
-    main()
