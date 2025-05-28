@@ -34,33 +34,43 @@ class dfa:
                     stack.append(next_state)
     
 def epsilon_closure(states):
+    """
+    Izračunava epsilon zatvaranje skupa NFA stanja.
+    Prati sve tranzicije označene sa None (epsilon).
+    """
     closure = set(states)
     stack = list(states)
-
+    
     while stack:
-        state = stack.pop()
-        for next_state in [state.edge1, state.edge2]:
-            if next_state and next_state.label is None and next_state not in closure:
-                closure.add(next_state)
-                stack.append(next_state)
-
+        s = stack.pop()
+        # Proveri da li postoje epsilon tranzicije iz ovog stanja
+        if None in s.transitions:
+            for next_s in s.transitions[None]:
+                if next_s not in closure:
+                    closure.add(next_s)
+                    stack.append(next_s)
     return frozenset(closure)
     
 def get_symbols(nfa):
     symbols = set()
-    for state in nfa.get_states():
-        if state.label:
-            symbols.add(state.label)
-    return symbols
+    for s in nfa.get_states(): # Koristi nfa.get_states()
+        for symbol in s.transitions.keys():
+            if symbol is not None: # Epsilon nije simbol
+                symbols.add(symbol)
+    return frozenset(symbols) # Vraća frozenset simbola
     
 def move(states, symbol):
+    """
+    Izračunava skup NFA stanja do kojih se može doći iz datog skupa NFA stanja
+    konzumiranjem datog simbola.
+    """
     result = set()
-    for state in states:
-        if state.edge1 and state.edge1.label == symbol:
-            result.add(state.edge1.edge1)
-        if state.edge2 and state.edge2.label == symbol:
-            result.add(state.edge2.edge1)
-    return result
+    for s in states:
+        if symbol in s.transitions:
+            for next_s in s.transitions[symbol]:
+                result.add(next_s)
+    return frozenset(result)
+
     
 def nfa_to_dfa(nfa):
     symbols = get_symbols(nfa)
@@ -98,13 +108,18 @@ def nfa_to_dfa(nfa):
     
 def match_string(dfa, input_string):
     current_state = dfa.initial
-    
-    for symbol in input_string:
+    print(f"\nMatching string '{input_string}' starting from DFA state ID: {current_state.id}")
+    for i, symbol in enumerate(input_string):
+        print(f"  Processing symbol '{symbol}' (index {i}). Current DFA state ID: {current_state.id}")
         if symbol in current_state.transitions:
-            current_state = current_state.transitions[symbol]
+            next_state = current_state.transitions[symbol]
+            print(f"    Transition for '{symbol}' to DFA state ID: {next_state.id}")
+            current_state = next_state
         else:
+            print(f"    NO TRANSITION for '{symbol}' from DFA state ID: {current_state.id}. Match failed.")
             return False
-    
+
+    print(f"End of string. Final DFA state ID: {current_state.id}. Is accept state? {current_state.is_accept}")
     return current_state.is_accept
 
 def print_dfa(dfa):

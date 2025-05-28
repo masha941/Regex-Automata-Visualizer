@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/vis-network/styles/vis-network.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <title>Regex Automata Visualizer</title>
     <style>
         :root {
@@ -113,6 +115,28 @@
         .button:hover {
             background-color: var(--primary-dark);
         }
+
+        .match-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .match-result.success {
+            background-color: #d1fae5; /* green-100 */
+            color: #065f46; /* green-800 */
+        }
+        .match-result.failure {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+        }
+        .error-message {
+            color: #dc2626; /* red-600 */
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
         
         @media (max-width: 640px) {
             h1 {
@@ -150,25 +174,95 @@
             </div>
             
             <div class="input-group">
-                <button class="button" id="visualizeBtn">Visualize</button>
+                <button class="button" id="visualizeBtn" onclick="fetchAndDrawDFA()">Visualize</button>
             </div>
+
+            <div id="matchResult" class="match-result" style="display: none;"></div>
+            <div id="errorMessage" class="error-message" style="display:none;"></div>
         </div>
+        <div id="graph" style="height: 500px; border: 1px solid #ccc; margin-top: 2rem;"></div>
     </div>
 
     <script>
-        // Your JavaScript for visualization functionality would go here
-        document.getElementById('visualizeBtn').addEventListener('click', function() {
-            // Example placeholder for visualization functionality
+
+        function drawDFA(states, transitions, initialState, acceptStates){
+            const nodes = states.map(s=>({
+                id: s,
+                label: `q${s}`,
+                color: acceptStates.includes(s) ? '#34d399' : undefined,
+                borderWidth: s === initialState ? 3 : 1
+            }))
+
+            const edges = transitions.map(t =>({
+                from: t.from,
+                to: t.to,
+                label: t.symbol
+            }));
+
+            const container = document.getElementById('graph');
+            const data = {
+                nodes: new vis.DataSet(nodes),
+                edges: new vis.DataSet(edges)
+            };
+            const options = {
+                layout: {hierarchical: {direction: "LR", sortMethod: "directed"}},
+                nodes: {shape:"ellipse",size:20},
+                physics: false
+            };
+            new vis.Network(container,data,options);
+        }
+
+        async function fetchAndDrawDFA() {
             const regex = document.getElementById('expr').value;
             const testString = document.getElementById('string').value;
-            
-            if (regex && testString) {
-                console.log(`Visualizing regex "${regex}" with test string "${testString}"`);
+            const matchResultDiv = document.getElementById('matchResult');
+            const errorMessageDiv = document.getElementById('errorMessage');
 
-                // Actual visualization logic would be implemented here
+            matchResultDiv.style.display = 'none';
+            errorMessageDiv.style.display = 'none';
+            errorMessageDiv.textContent = '';
 
+            if(!regex){
+                errorMessageDiv.textContent = "Please input regular expression.";
+                errorMessageDiv.style.display = 'block';
+                return;
             }
-        });
+            try{
+                const response = await fetch('/visualize', {
+                    method:"POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({regex:regex, testString: testString})
+                });
+
+                const dfa = await response.json();
+
+                if(response.ok){
+                    drawDFA(dfa.states, dfa.transitions, dfa.initial, dfa.accept);
+
+                    if(testString){
+                        if(dfa.matchResult !== undefined){
+                            matchResultDiv.textContent = `String "${testString}" ${dfa.matchResult ? 'matches' : 'doesn\'t match'} the regular expression.`;
+                            matchResultDiv.className = `match-result ${dfa.matchResult ? 'success' : 'failure'}`;
+                            matchResultDiv.style.display = 'block';
+                        }
+                    }
+                }
+                else{
+                    errorMessageDiv.textContent = dfa.error || 'Unknown error';
+                    errorMessageDiv.style.display = 'block';
+                }
+            }
+            catch{
+                console.error("Error catching DFA:", error);
+                errorMessageDiv.textContent = `Can't connect to the server or there is error: ${error.message}`
+                errorMessageDiv.style.display = 'block';
+            }
+
+        }
+        
+        document.getElementById('visualizeBtn').addEventListener('click', fetchAndDrawDFA);
     </script>
 </body>
 </html>
