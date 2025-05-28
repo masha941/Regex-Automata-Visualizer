@@ -12,7 +12,7 @@ class state:
         return isinstance(other, state) and self.nfa_states == other.nfa_states
     
     def __repr__(self):
-        return f"state({[id(s) for s in self.nfa_states]})"  # changed from s.id to id(s)
+        return f"state({sorted([s._temp_id for s in self.nfa_states])})"
     
 class dfa:
     def __init__(self, initial_state, accept_states):

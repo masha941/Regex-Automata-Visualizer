@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <title>Regex Automata Visualizer</title>
     <style>
+        /* Vaš postojeći CSS (koji ste poslali, dodao sam samo komentar) */
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -186,17 +187,61 @@
     <script>
 
         function drawDFA(states, transitions, initialState, acceptStates){
-            const nodes = states.map(s=>({
-                id: s,
-                label: `q${s}`,
-                color: acceptStates.includes(s) ? '#34d399' : undefined,
-                borderWidth: s === initialState ? 3 : 1
-            }))
+            const nodes = states.map(s => {
+                const node = {
+                    id: s.id,       // Koristi ID koji dolazi iz backend-a (sada su sekvencijalni 0,1,2...)
+                    label: s.label, // Koristi labelu (npr. "q0") koja dolazi iz backend-a
+                    color: {
+                        background: '#e0e7ff', // Svijetlo plava pozadina
+                        border: '#4f46e5',    // Tamnija plava ivica
+                        highlight: {
+                            background: '#a5b4fc',
+                            border: '#4f46e5'
+                        }
+                    },
+                    borderWidth: 1 // Podrazumevana širina ivice
+                };
+
+                // Označavanje početnog stanja
+                if (s.id === initialState) {
+                    node.borderWidth = 3; 
+                    node.color.border = '#6366f1'; // Možete dati posebnu boju ivice za početno stanje
+                }
+
+                // Označavanje prihvatljivih stanja
+                if (acceptStates.includes(s.id)) {
+                    node.color.background = '#d1fae5'; // Svijetlo zelena pozadina
+                    node.color.border = '#065f46';     // Tamno zelena ivica
+                    node.borderWidth = 2; // Prihvatljivo stanje ima deblju ivicu
+                    // Ako želite baš dvostruki krug, to je kompleksnije za vis.js
+                    // Alternativa: node.shape = 'box' ili 'star' za prihvatljiva stanja
+                }
+
+                return node;
+            });
 
             const edges = transitions.map(t =>({
                 from: t.from,
                 to: t.to,
-                label: t.symbol
+                label: t.label, // Koristi t.label (koje backend šalje kao string, uključujući epsilon)
+                arrows: 'to', // Strelice ka ciljnom čvoru
+                font: {
+                    align: 'middle', // Labela na sredini grane
+                    size: 12,
+                    color: '#64748b', // Boja teksta labela
+                    strokeWidth: 0 // Bez senke teksta
+                },
+                color: {
+                    color: '#64748b', // Boja grane
+                    highlight: '#4f46e5' // Boja grane pri hoveru
+                },
+                smooth: {
+                    enabled: true,
+                    type: "cubicBezier", // Krive grane
+                    forceDirection: "horizontal", // Horizontalni smer krivulja za bolji raspored
+                    roundness: 0.5 // Zaobljenost krivulja (možete eksperimentisati 0.1 do 1.0)
+                },
+                width: 1 // Debljina grane
             }));
 
             const container = document.getElementById('graph');
@@ -205,11 +250,61 @@
                 edges: new vis.DataSet(edges)
             };
             const options = {
-                layout: {hierarchical: {direction: "LR", sortMethod: "directed"}},
-                nodes: {shape:"ellipse",size:20},
-                physics: false
+                layout: {
+                    hierarchical: {
+                        direction: "LR", // Raspored levo na desno
+                        sortMethod: "directed", // Sortiranje usmerenog grafa
+                        levelSeparation: 150, // Povećava razmak između nivoa
+                        nodeSpacing: 100 // Povećava razmak između čvorova na istom nivou
+                    }
+                },
+                nodes: {
+                    shape: "ellipse", // Podrazumevani oblik
+                    size: 20,         // Podrazumevana veličina
+                    font: {
+                        size: 14,
+                        color: '#1e293b'
+                    },
+                    // Boje i ivice se sada postavljaju po čvoru u `nodes` mapi, ali se ovde mogu definisati default vrednosti
+                    color: {
+                        border: '#4f46e5',
+                        background: '#e0e7ff',
+                        highlight: {
+                            border: '#4f46e5',
+                            background: '#a5b4fc'
+                        }
+                    }
+                },
+                edges: {
+                    // Opcije za ivice su već definisane u `edges` mapi
+                    arrows: {
+                        to: {enabled: true, scaleFactor: 0.8}
+                    },
+                    font: {
+                        align: 'middle',
+                        size: 12
+                    },
+                    color: {
+                        color: '#64748b',
+                        highlight: '#4f46e5'
+                    },
+                    smooth: {
+                        enabled: true,
+                        type: "cubicBezier",
+                        forceDirection: "horizontal",
+                        roundness: 0.5
+                    }
+                },
+                physics: {
+                    enabled: false // Isključite fiziku za stabilan hijerarhijski raspored
+                },
+                interaction: {
+                    zoomView: true,
+                    dragView: true,
+                    selectNodesOnDrag: false // Onemogućite selekciju pravougaonikom za lakše pomeranje
+                }
             };
-            new vis.Network(container,data,options);
+            new vis.Network(container, data, options);
         }
 
         async function fetchAndDrawDFA() {
@@ -239,6 +334,7 @@
                 const dfa = await response.json();
 
                 if(response.ok){
+                    console.log("Received DFA data:", dfa); // OVO JE VAZNO ZA DEBAGOVANJE
                     drawDFA(dfa.states, dfa.transitions, dfa.initial, dfa.accept);
 
                     if(testString){
@@ -254,9 +350,9 @@
                     errorMessageDiv.style.display = 'block';
                 }
             }
-            catch{
-                console.error("Error catching DFA:", error);
-                errorMessageDiv.textContent = `Can't connect to the server or there is error: ${error.message}`
+            catch(error){
+                console.error("Error fetching DFA:", error);
+                errorMessageDiv.textContent = `Can't connect to the server or there is an error: ${error.message || error}`;
                 errorMessageDiv.style.display = 'block';
             }
 
