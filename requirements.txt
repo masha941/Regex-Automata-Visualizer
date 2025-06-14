@@ -27,6 +27,8 @@ entrypoints==0.4
 executing==2.0.1
 fasteners==0.18
 fastjsonschema==2.19.0
+Flask==3.0.3
+gunicorn==23.0.0
 fonttools==4.46.0
 fs==2.4.16
 html5lib==1.1
