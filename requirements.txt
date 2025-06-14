@@ -54,7 +54,6 @@ matplotlib-inline==0.1.6
 mdurl==0.1.2
 monotonic==1.6
 more-itertools==10.2.0
-mpmath==0.0.0
 natsort==8.0.2
 nbclient==0.8.0
 nbconvert==6.5.3
