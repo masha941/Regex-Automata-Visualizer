@@ -20,7 +20,7 @@ class dfa:
         self.accept_states = accept_states
         self.states = set()
         self._collect_states()
-
+        
     def _collect_states(self):
         visited = set()
         stack = [self.initial]
@@ -28,22 +28,18 @@ class dfa:
         while stack:
             curr = stack.pop()
             if curr not in visited:
-                visited.add(curr)
+                visited.add(curr) 
                 self.states.add(curr)
+
                 for next_state in curr.transitions.values():
-                    stack.append(next_state)
-    
+                    stack.append(next_state) 
+
 def epsilon_closure(states):
-    """
-    Izračunava epsilon zatvaranje skupa NFA stanja.
-    Prati sve tranzicije označene sa None (epsilon).
-    """
     closure = set(states)
     stack = list(states)
     
     while stack:
         s = stack.pop()
-        # Proveri da li postoje epsilon tranzicije iz ovog stanja
         if None in s.transitions:
             for next_s in s.transitions[None]:
                 if next_s not in closure:
@@ -53,17 +49,13 @@ def epsilon_closure(states):
     
 def get_symbols(nfa):
     symbols = set()
-    for s in nfa.get_states(): # Koristi nfa.get_states()
+    for s in nfa.get_states(): 
         for symbol in s.transitions.keys():
-            if symbol is not None: # Epsilon nije simbol
+            if symbol is not None: 
                 symbols.add(symbol)
-    return frozenset(symbols) # Vraća frozenset simbola
+    return frozenset(symbols)
     
 def move(states, symbol):
-    """
-    Izračunava skup NFA stanja do kojih se može doći iz datog skupa NFA stanja
-    konzumiranjem datog simbola.
-    """
     result = set()
     for s in states:
         if symbol in s.transitions:
@@ -71,7 +63,6 @@ def move(states, symbol):
                 result.add(next_s)
     return frozenset(result)
 
-    
 def nfa_to_dfa(nfa):
     symbols = get_symbols(nfa)
     initial_closure = epsilon_closure([nfa.initial])
@@ -121,37 +112,3 @@ def match_string(dfa, input_string):
 
     print(f"End of string. Final DFA state ID: {current_state.id}. Is accept state? {current_state.is_accept}")
     return current_state.is_accept
-
-def print_dfa(dfa):
-    print("DFA States:")
-    state_list = list(dfa.states)
-    for i, s in enumerate(state_list):
-        accept_marker = " (ACCEPT)" if s.is_accept else ""
-        initial_marker = " (INITIAL)" if s == dfa.initial else ""
-        print(f"  State {i}: {s}{accept_marker}{initial_marker}")
-        for symbol, next_state in s.transitions.items():
-            next_index = state_list.index(next_state)
-            print(f"    --{symbol}--> State {next_index}")
-    print()
-
-def test_conversion(regex_pattern, test_strings):
-    from parser import parse_to_rpn
-    from nfa import compile
-    
-    print(f"Testing regex: {regex_pattern}")
-    rpn = parse_to_rpn(regex_pattern)
-    print(f"RPN: {rpn}")
-    
-    nfa_obj = compile(rpn)
-    print(f"NFA created with {len(nfa_obj.get_states())} states")
-    
-    dfa_obj = nfa_to_dfa(nfa_obj)
-    print(f"DFA created with {len(dfa_obj.states)} states")
-    
-    print_dfa(dfa_obj)
-    
-    print("Testing strings:")
-    for test_str in test_strings:
-        result = match_string(dfa_obj, test_str)
-        print(f"  '{test_str}': {'MATCH' if result else 'NO MATCH'}")
-    print("-" * 50)

@@ -2,8 +2,8 @@ _nfa_state_counter = 0
 
 class state:
     def __init__(self):
-        self.transitions = {} # {'symbol': set_of_next_states, None: set_of_epsilon_next_states}
-        self.id = None # Jedinstveni ID za svako stanje
+        self.transitions = {} 
+        self.id = None 
 
     def add_transition(self, symbol, next_state):
         if symbol not in self.transitions:
@@ -28,6 +28,9 @@ class nfa:
         self._collect_states()
         self._assign_stable_ids()
     
+    def get_states(self):
+        return self._states
+    
     def _collect_states(self):
         visited = set()
         stack = [self.initial]
@@ -39,10 +42,6 @@ class nfa:
                 for symbol, next_states in s.transitions.items():
                     for next_s in next_states:
                         stack.append(next_s)
-        return self._states
-    
-    def get_states(self):
-        return self._states
     
     def _assign_stable_ids(self):
         global _nfa_state_counter
@@ -56,63 +55,63 @@ class nfa:
 def compile(regex):
     nfaStack = []
     for c in regex:
-        if c == '*': # Kleene star
+        if c == '*':
             nfa1 = nfaStack.pop()
             initial, accept = state(), state()
             
-            initial.add_transition(None, nfa1.initial) # New_initial --e--> Old_initial
-            initial.add_transition(None, accept)      # New_initial --e--> New_accept (0 ponavljanja)
+            initial.add_transition(None, nfa1.initial) 
+            initial.add_transition(None, accept) 
             
-            nfa1.accept.add_transition(None, nfa1.initial) # Old_accept --e--> Old_initial (ponavljanja)
-            nfa1.accept.add_transition(None, accept)       # Old_accept --e--> New_accept
+            nfa1.accept.add_transition(None, nfa1.initial) 
+            nfa1.accept.add_transition(None, accept)
             
             nfaStack.append(nfa(initial, accept))
         
-        elif c == '.': # Konkatenacija
+        elif c == '.': #concantenation
             nfa2 = nfaStack.pop()
             nfa1 = nfaStack.pop()
-            nfa1.accept.add_transition(None, nfa2.initial) # NFA1_accept --e--> NFA2_initial
+            nfa1.accept.add_transition(None, nfa2.initial)
             nfaStack.append(nfa(nfa1.initial, nfa2.accept))
         
-        elif c == '+': # Kleene plus
+        elif c == '+':
             nfa1 = nfaStack.pop()
             initial, accept = state(), state()
             
-            initial.add_transition(None, nfa1.initial) # New_initial --e--> Old_initial
+            initial.add_transition(None, nfa1.initial) 
             
-            nfa1.accept.add_transition(None, nfa1.initial) # Old_accept --e--> Old_initial (ponavljanja)
-            nfa1.accept.add_transition(None, accept)       # Old_accept --e--> New_accept
+            nfa1.accept.add_transition(None, nfa1.initial)
+            nfa1.accept.add_transition(None, accept)
             
             nfaStack.append(nfa(initial, accept))
         
-        elif c == '?': # Opcionalni operator
+        elif c == '?': 
             nfa1 = nfaStack.pop()
             initial, accept = state(), state()
             
-            initial.add_transition(None, nfa1.initial) # New_initial --e--> Old_initial
-            initial.add_transition(None, accept)      # New_initial --e--> New_accept (0 ponavljanja)
+            initial.add_transition(None, nfa1.initial) 
+            initial.add_transition(None, accept)  
             
-            nfa1.accept.add_transition(None, accept)   # Old_accept --e--> New_accept
+            nfa1.accept.add_transition(None, accept) 
             
             nfaStack.append(nfa(initial, accept))
         
-        elif c == '|': # Unija
+        elif c == '|':
             nfa2 = nfaStack.pop()
             nfa1 = nfaStack.pop()
             initial, accept = state(), state()
             
-            initial.add_transition(None, nfa1.initial) # New_initial --e--> NFA1_initial
-            initial.add_transition(None, nfa2.initial) # New_initial --e--> NFA2_initial
+            initial.add_transition(None, nfa1.initial)
+            initial.add_transition(None, nfa2.initial) 
             
-            nfa1.accept.add_transition(None, accept)   # NFA1_accept --e--> New_accept
-            nfa2.accept.add_transition(None, accept)   # NFA2_accept --e--> New_accept
+            nfa1.accept.add_transition(None, accept)
+            nfa2.accept.add_transition(None, accept)
             
             nfaStack.append(nfa(initial, accept))
         
-        else: # Literalni karakter
+        else:
             initial = state()
             accept = state()
-            initial.add_transition(c, accept) # Initial --c--> Accept
+            initial.add_transition(c, accept)
             nfaStack.append(nfa(initial, accept))
     
     return nfaStack.pop()

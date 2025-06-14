@@ -7,7 +7,6 @@
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <title>Regex Automata Visualizer</title>
     <style>
-        /* Vaš postojeći CSS (koji ste poslali, dodao sam samo komentar) */
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -125,15 +124,15 @@
             text-align: center;
         }
         .match-result.success {
-            background-color: #d1fae5; /* green-100 */
-            color: #065f46; /* green-800 */
+            background-color: #d1fae5; 
+            color: #065f46; 
         }
         .match-result.failure {
-            background-color: #fee2e2; /* red-100 */
-            color: #991b1b; /* red-800 */
+            background-color: #fee2e2; 
+            color: #991b1b; 
         }
         .error-message {
-            color: #dc2626; /* red-600 */
+            color: #dc2626; 
             margin-top: 1rem;
             text-align: center;
             font-weight: 500;
@@ -189,32 +188,28 @@
         function drawDFA(states, transitions, initialState, acceptStates){
             const nodes = states.map(s => {
                 const node = {
-                    id: s.id,       // Koristi ID koji dolazi iz backend-a (sada su sekvencijalni 0,1,2...)
-                    label: s.label, // Koristi labelu (npr. "q0") koja dolazi iz backend-a
+                    id: s.id,     
+                    label: s.label,
                     color: {
-                        background: '#e0e7ff', // Svijetlo plava pozadina
-                        border: '#4f46e5',    // Tamnija plava ivica
+                        background: '#e0e7ff',
+                        border: '#4f46e5',  
                         highlight: {
                             background: '#a5b4fc',
                             border: '#4f46e5'
                         }
                     },
-                    borderWidth: 1 // Podrazumevana širina ivice
+                    borderWidth: 1 
                 };
 
-                // Označavanje početnog stanja
                 if (s.id === initialState) {
                     node.borderWidth = 3; 
-                    node.color.border = '#6366f1'; // Možete dati posebnu boju ivice za početno stanje
+                    node.color.border = '#6366f1'; 
                 }
 
-                // Označavanje prihvatljivih stanja
                 if (acceptStates.includes(s.id)) {
-                    node.color.background = '#d1fae5'; // Svijetlo zelena pozadina
-                    node.color.border = '#065f46';     // Tamno zelena ivica
-                    node.borderWidth = 2; // Prihvatljivo stanje ima deblju ivicu
-                    // Ako želite baš dvostruki krug, to je kompleksnije za vis.js
-                    // Alternativa: node.shape = 'box' ili 'star' za prihvatljiva stanja
+                    node.color.background = '#d1fae5'; 
+                    node.color.border = '#065f46';
+                    node.borderWidth = 2; 
                 }
 
                 return node;
@@ -223,25 +218,25 @@
             const edges = transitions.map(t =>({
                 from: t.from,
                 to: t.to,
-                label: t.label, // Koristi t.label (koje backend šalje kao string, uključujući epsilon)
-                arrows: 'to', // Strelice ka ciljnom čvoru
+                label: t.label, 
+                arrows: 'to', 
                 font: {
-                    align: 'middle', // Labela na sredini grane
-                    size: 12,
-                    color: '#64748b', // Boja teksta labela
-                    strokeWidth: 0 // Bez senke teksta
+                    align: 'middle',
+                    size: 18,
+                    color: '#000000', 
+                    strokeWidth: 0 
                 },
                 color: {
-                    color: '#64748b', // Boja grane
-                    highlight: '#4f46e5' // Boja grane pri hoveru
+                    color: '#676673', 
+                    highlight: '#4f46e5' 
                 },
                 smooth: {
                     enabled: true,
-                    type: "cubicBezier", // Krive grane
-                    forceDirection: "horizontal", // Horizontalni smer krivulja za bolji raspored
-                    roundness: 0.5 // Zaobljenost krivulja (možete eksperimentisati 0.1 do 1.0)
+                    type: "cubicBezier",
+                    forceDirection: "horizontal",
+                    roundness: 0.5
                 },
-                width: 1 // Debljina grane
+                width: 2
             }));
 
             const container = document.getElementById('graph');
@@ -252,20 +247,19 @@
             const options = {
                 layout: {
                     hierarchical: {
-                        direction: "LR", // Raspored levo na desno
-                        sortMethod: "directed", // Sortiranje usmerenog grafa
-                        levelSeparation: 150, // Povećava razmak između nivoa
-                        nodeSpacing: 100 // Povećava razmak između čvorova na istom nivou
+                        direction: "LR",
+                        sortMethod: "directed",
+                        levelSeparation: 150,
+                        nodeSpacing: 100
                     }
                 },
                 nodes: {
-                    shape: "ellipse", // Podrazumevani oblik
-                    size: 20,         // Podrazumevana veličina
+                    shape: "ellipse", 
+                    size: 20,
                     font: {
                         size: 14,
                         color: '#1e293b'
                     },
-                    // Boje i ivice se sada postavljaju po čvoru u `nodes` mapi, ali se ovde mogu definisati default vrednosti
                     color: {
                         border: '#4f46e5',
                         background: '#e0e7ff',
@@ -276,7 +270,6 @@
                     }
                 },
                 edges: {
-                    // Opcije za ivice su već definisane u `edges` mapi
                     arrows: {
                         to: {enabled: true, scaleFactor: 0.8}
                     },
@@ -296,12 +289,12 @@
                     }
                 },
                 physics: {
-                    enabled: false // Isključite fiziku za stabilan hijerarhijski raspored
+                    enabled: false
                 },
                 interaction: {
                     zoomView: true,
                     dragView: true,
-                    selectNodesOnDrag: false // Onemogućite selekciju pravougaonikom za lakše pomeranje
+                    selectNodesOnDrag: false
                 }
             };
             new vis.Network(container, data, options);
@@ -334,7 +327,7 @@
                 const dfa = await response.json();
 
                 if(response.ok){
-                    console.log("Received DFA data:", dfa); // OVO JE VAZNO ZA DEBAGOVANJE
+                    console.log("Received DFA data:", dfa);
                     drawDFA(dfa.states, dfa.transitions, dfa.initial, dfa.accept);
 
                     if(testString){

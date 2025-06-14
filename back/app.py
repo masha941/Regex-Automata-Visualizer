@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
@@ -31,15 +29,9 @@ def visualize():
         dfa_states_data = []
         dfa_transitions_data = []
         
-        # OVO JE KLJUČNA PROMENA SORTIRANJA:
-        # Pretpostavka: s.nfa_states je frozenset NFAState objekata.
-        # Pretpostavka: NFAState objekti imaju atribut 'id' (npr. n_state.id).
-        # Ako NFAState objekti nemaju 'id', onda morate koristiti nešto drugo što ih jedinstveno identifikuje
-        # (npr. str(n_state) ako __str__ daje jedinstvenu reprezentaciju).
-        
         sorted_dfa_states = sorted(
             list(dfa_obj.states),
-            key=lambda s: tuple(sorted([n_state.id for n_state in s.nfa_states])) # Kljuc je SORTIRANI TUPLE NFA ID-jeva
+            key=lambda s: tuple(sorted([n_state.id for n_state in s.nfa_states]))
         )
         
         state_internal_id_to_display_id_map = {s.id: i for i, s in enumerate(sorted_dfa_states)}
@@ -67,21 +59,6 @@ def visualize():
         match_result = None
         if test_string:
             match_result = match_string(dfa_obj, test_string)
-
-        # DEBUG INFO
-        print("\n--- DFA Debug Info (from app.py) ---")
-        print(f"Regex: '{regex_pattern}'")
-        print(f"Test String: '{test_string}'")
-        print(f"Match Result: {match_result}")
-        print("DFA States data sent:")
-        for state_data in dfa_states_data:
-            print(f"  {state_data}")
-        print("DFA Transitions data sent:")
-        for trans_data in dfa_transitions_data:
-            print(f"  {trans_data}")
-        print("Initial state display ID:", initial_state_display_id)
-        print("Accept states display IDs:", accept_states_display_ids)
-        print("--- End Debug Info ---\n")
 
         return jsonify({
             "states": dfa_states_data,
