@@ -3,7 +3,7 @@ argon2-cffi==21.1.0
 asttokens==2.4.1
 attrs==23.2.0
 Babel==2.10.3
-bcc==0.29.1
+bcc
 bcrypt==3.2.2
 beautifulsoup4==4.12.3
 bleach==6.1.0
