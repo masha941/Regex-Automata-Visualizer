@@ -9,4 +9,4 @@ This project features a from-scratch implementation of NFA and DFA algorithms to
 - Frontend: HTML, CSS, JavaScript
 - Backend: Python
 
-It's available on this url: https://regex-automata-visualizer.onrender.com/
+The live application is accessible here: https://regex-automata-visualizer.onrender.com/
